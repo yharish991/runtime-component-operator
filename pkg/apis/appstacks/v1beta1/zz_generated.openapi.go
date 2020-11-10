@@ -11,6 +11,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
+		"./pkg/apis/appstacks/v1beta1.OperationStatusCondition":    schema_pkg_apis_appstacks_v1beta1_OperationStatusCondition(ref),
 		"./pkg/apis/appstacks/v1beta1.RuntimeComponent":            schema_pkg_apis_appstacks_v1beta1_RuntimeComponent(ref),
 		"./pkg/apis/appstacks/v1beta1.RuntimeComponentAffinity":    schema_pkg_apis_appstacks_v1beta1_RuntimeComponentAffinity(ref),
 		"./pkg/apis/appstacks/v1beta1.RuntimeComponentAutoScaling": schema_pkg_apis_appstacks_v1beta1_RuntimeComponentAutoScaling(ref),
@@ -18,9 +19,61 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"./pkg/apis/appstacks/v1beta1.RuntimeComponentService":     schema_pkg_apis_appstacks_v1beta1_RuntimeComponentService(ref),
 		"./pkg/apis/appstacks/v1beta1.RuntimeComponentSpec":        schema_pkg_apis_appstacks_v1beta1_RuntimeComponentSpec(ref),
 		"./pkg/apis/appstacks/v1beta1.RuntimeComponentStatus":      schema_pkg_apis_appstacks_v1beta1_RuntimeComponentStatus(ref),
+		"./pkg/apis/appstacks/v1beta1.RuntimeOperation":            schema_pkg_apis_appstacks_v1beta1_RuntimeOperation(ref),
+		"./pkg/apis/appstacks/v1beta1.RuntimeOperationSpec":        schema_pkg_apis_appstacks_v1beta1_RuntimeOperationSpec(ref),
+		"./pkg/apis/appstacks/v1beta1.RuntimeOperationStatus":      schema_pkg_apis_appstacks_v1beta1_RuntimeOperationStatus(ref),
 		"./pkg/apis/appstacks/v1beta1.ServiceBindingConsumes":      schema_pkg_apis_appstacks_v1beta1_ServiceBindingConsumes(ref),
 		"./pkg/apis/appstacks/v1beta1.ServiceBindingProvides":      schema_pkg_apis_appstacks_v1beta1_ServiceBindingProvides(ref),
 		"./pkg/apis/appstacks/v1beta1.StatusCondition":             schema_pkg_apis_appstacks_v1beta1_StatusCondition(ref),
+	}
+}
+
+func schema_pkg_apis_appstacks_v1beta1_OperationStatusCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "OperationStatusCondition ...",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"lastTransitionTime": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"lastUpdateTime": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -648,11 +701,134 @@ func schema_pkg_apis_appstacks_v1beta1_RuntimeComponentStatus(ref common.Referen
 							Format: "",
 						},
 					},
+					"binding": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"./pkg/apis/appstacks/v1beta1.StatusCondition"},
+			"./pkg/apis/appstacks/v1beta1.StatusCondition", "k8s.io/api/core/v1.LocalObjectReference"},
+	}
+}
+
+func schema_pkg_apis_appstacks_v1beta1_RuntimeOperation(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RuntimeOperation is the Schema for the runtimeoperation API",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("./pkg/apis/appstacks/v1beta1.RuntimeOperationSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("./pkg/apis/appstacks/v1beta1.RuntimeOperationStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"./pkg/apis/appstacks/v1beta1.RuntimeOperationSpec", "./pkg/apis/appstacks/v1beta1.RuntimeOperationStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_pkg_apis_appstacks_v1beta1_RuntimeOperationSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RuntimeOperationSpec defines the desired state of RuntimeOperation",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"podName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of the Pod to perform runtime operation on. Pod must be from the same namespace as the RuntimeOperation instance",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"containerName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of the container. Defaults to main container \"app\"",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"command": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Command to execute. Not executed within a shell",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"podName", "command"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_appstacks_v1beta1_RuntimeOperationStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RuntimeOperationStatus defines the observed state of RuntimeOperation",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("./pkg/apis/appstacks/v1beta1.OperationStatusCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"./pkg/apis/appstacks/v1beta1.OperationStatusCondition"},
 	}
 }
 

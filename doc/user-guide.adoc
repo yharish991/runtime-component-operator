@@ -64,9 +64,16 @@ Each `RuntimeComponent` CR must at least specify the `applicationImage` paramete
 | `initContainers` | The list of link:++https://v1-17.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#container-v1-core++[Init Container] definitions.
 | `sidecarContainers` | The list of `sidecar` containers. These are additional containers to be added to the pods. Note: Sidecar containers should not be named `app`.
 | `architecture` | An array of architectures to be considered for deployment. Their position in the array indicates preference.
+<<<<<<< HEAD
 | `bindings.embedded` | A YAML object that represents a `ServiceBinding` custom resource.
 | `bindings.autoDetect` | A boolean to toggle whether the operator should automatically detect and use a `ServiceBinding` resource with `<CR_NAME>-binding` naming format. The default value for this parameter is `true`.
 | `bindings.resourceRef` | The name of a `ServiceBinding` custom resource created manually in the same namespace as the application.
+=======
+| `bindings.embedded` | A YAML object that represents a `ServiceBindingRequest` custom resource.
+| `bindings.autoDetect` | A boolean to toggle whether the operator should automatically detect and use a `ServiceBindingRequest` resource with `<CR_NAME>-binding` naming format. The default value for this parameter is `true`.
+| `bindings.resourceRef` | The name of a `ServiceBindingRequest` custom resource created manually in the same namespace as the application.
+| `bindings.expose.enabled` | A boolean to toggle whether the operator expose the application as a bindable service. The default value for this parameter is `false`.
+>>>>>>> d0271d71f2b37eca9448d7abdd9332c027888a75
 | `service.port` | The port exposed by the container.
 | `service.targetPort` | The port that the operator assigns to containers inside pods. Defaults to the value of `service.port`.
 | `service.portName` | The name for the port exposed by the container.
@@ -476,6 +483,17 @@ Users can turn off the auto-detection mechanism by setting the `bindings.autoDet
 ----
 
 _This feature is only available if you have Service Binding Operator installed on your cluster._
+
+==== Exposing `RuntimeComponent` applications as Provisioned Services
+
+A `RuntimeComponent` application can be configured to behave as a link:++https://github.com/k8s-service-bindings/spec#provisioned-service++[Provisioned Service] defined by the link:++https://github.com/k8s-service-bindings/spec++[Service Binding Specification].
+
+According to the specification, a Provisioned Service resource must define a `.status.binding.name` which is a reference to a Secret.
+To expose your application as a Provisioned Service, set the `.spec.bindings.expose.enabled` parameter to a value of `true`. The Runtime Component Operator creates a *binding secret* named `<CR_NAME>-expose-binding` and adds the following entries to the secret: `host`, `port`, `protocol`, `basePath` and `uri`.
+
+To override the default values for the entries in the binding secret or to add new entries to the secret, create an *override secret* named `<CR_NAME>-expose-binding-override` and add any entries to the secret. The operator reads the content of the override secret and overrides the default values in the binding secret.
+
+Once a `RuntimeComponent` application is exposed as a Provisioned Service, a service binding request can refer to the application as a backing service.
 
 ==== Binding to `RuntimeComponent` applications
 
@@ -1021,6 +1039,44 @@ spec:
 ----
 
 See link:++https://github.com/application-stacks/runtime-component-operator/blob/master/examples/affinity/README.adocd++[Affinity Example] for more details
+
+=== Day-2 Operations
+
+You can easily perform day-2 operations using the `RuntimeOperation` custom resource (CR), which allows you to specify the commands to run on a container within a Pod.
+
+.Configurable Parameters
+|===
+| Parameter       | Description
+| `podName`       | The name of the Pod, which must be in the same namespace as the `RuntimeOperation` CR.
+| `containerName` | The name of the container within the Pod. The default value is the name of the main container, which is `app`.
+| `command`       | Command to run. The command doesn't run in a shell.
+|===
+
+Example:
+
+[source,yaml]
+----
+apiVersion: app.stacks/v1beta1
+kind: RuntimeOperation
+metadata:
+  name: example-runtime-operation
+spec:
+  # Specify the name of the pod. The pod must be in the same namespace as this RuntimeOperation CR.
+  podName: Specify_Pod_Name_Here
+  # Specify the name of the container. The default value is the name of the main container, which is `app`.
+  containerName: app
+  # Run the following command. The command does not run in a shell.
+  command:
+    - /bin/sh
+    - '-c'
+    - echo "Hello" > /tmp/runtime-operation.log
+----
+
+You can check the status of a runtime operation by using the `status` field inside the CR YAML file. You can also run the `oc get runtimeop -o wide` command to see the status of all operations in the current namespace.
+
+The operator will retry to run the `RuntimeOperation` when it fails to start due to specified pod or container not being found or when the pod is not in running state. The retry interval will be doubled with each failed attempt. 
+
+NOTE: The `RuntimeOperation` CR must be created in the same namespace as the Pod to operate on. After the `RuntimeOperation` CR starts, the CR cannot be reused for more operations. A new CR needs to be created for each day-2 operation. The operator can process only one `RuntimeOperation` instance at a time. Long running commands can cause other runtime operations to wait before they start.
 
 === Troubleshooting
 
