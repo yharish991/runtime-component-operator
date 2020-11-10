@@ -41,7 +41,7 @@ func DefaultOpConfig() OpConfig {
 	cfg := OpConfig{}
 	cfg[OpConfigPropDefaultIssuer] = "self-signed"
 	cfg[OpConfigPropUseClusterIssuer] = "true"
-	cfg[OpConfigSvcBindingGVKs] = "ServiceBindingRequest.v1alpha1.apps.openshift.io"
+	cfg[OpConfigSvcBindingGVKs] = "ServiceBinding.v1alpha1.operators.coreos.com"
 	cfg[OpConfigDefaultHostname] = ""
 
 	return cfg
