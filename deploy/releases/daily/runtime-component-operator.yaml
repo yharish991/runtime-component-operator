@@ -89,9 +89,9 @@ rules:
   verbs:
   - '*'
 - apiGroups:
-  - apps.openshift.io
+  - operators.coreos.com
   resources:
-  - servicebindingrequests
+  - servicebindings
   verbs:
   - '*'
 - apiGroups:
